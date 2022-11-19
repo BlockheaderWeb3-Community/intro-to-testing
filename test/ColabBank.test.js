@@ -65,13 +65,45 @@ describe("ColabBank Test Suite", async () => {
             expect(totalColabBalance).to.eq(5)
 
             await expect(addr1DepositTxn).to.emit(colabBank, "Deposit").withArgs(5, anyValue, addr1.address)
-
-            
-
-
-                // mocha
-                // chai 
         })
     })
+    // Adding the withdrwal test (Faith M. Roberts)
+    describe("Withdrawal", async () => {
+        it("should fail if called before the present time", async () => {
+            const { colabBank, addr1, unlockTime } = await loadFixture(deployOneYearLockFixture);
 
+        expect(colabBank.withdraw()).to.be.revertedWith("You can't withdraw yet");
+        await time.increaseTo(unlockTime);
+
+        // We use lock.connect() to send a transaction from another account
+        await expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
+          "You aren't the owner"
+        );
+      });
+
+        // We can increase the time in Hardhat Network
+        await time.increaseTo(unlockTime);
+
+        // We use lock.connect() to send a transaction from another account
+        expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
+          "You aren't the owner"
+        );
+
+        expect(colabBank.withdraw()).not.to.be.reverted;
+      });
+      });
+
+    describe("Events", function () {
+      it("Should emit an event on withdrawals", async function () {
+        const { lock, unlockTime, lockedAmount } = await loadFixture(
+          deployOneYearLockFixture
+        );
+
+        await time.increaseTo(unlockTime);
+
+        await expect(lock.withdraw())
+          .to.emit(lock, "Withdrawal")
+          .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
+      });
+    });
 })
