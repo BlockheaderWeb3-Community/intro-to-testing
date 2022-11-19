@@ -14,7 +14,7 @@ contract ColabBankV2 {
         owner = payable(msg.sender);
     }
 
-
+    // spot the vulnerability
     function deposit() public payable {
         require(msg.value != 0, "cannot deposit 0 ETH");
         uint256 value = msg.value;
