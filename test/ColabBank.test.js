@@ -67,43 +67,32 @@ describe("ColabBank Test Suite", async () => {
             await expect(addr1DepositTxn).to.emit(colabBank, "Deposit").withArgs(5, anyValue, addr1.address)
         })
     })
-    // Adding the withdrwal test (Faith M. Roberts)
+    // Adding the withdrawal test (Faith M. Roberts)
     describe("Withdrawal", async () => {
         it("should fail if called before the present time", async () => {
-            const { colabBank, addr1, unlockTime } = await loadFixture(deployOneYearLockFixture);
-
+        const { colabBank, addr1, unlockTime } = await loadFixture(deployOneYearLockFixture);
+      
         expect(colabBank.withdraw()).to.be.revertedWith("You can't withdraw yet");
+              
+        // checking for the owner
         await time.increaseTo(unlockTime);
-
-        // We use lock.connect() to send a transaction from another account
-        await expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
-        );
-      });
-
-        // We can increase the time in Hardhat Network
-        await time.increaseTo(unlockTime);
-
-        // We use lock.connect() to send a transaction from another account
-        expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
-        );
-
+        expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith("You aren't the owner");
         expect(colabBank.withdraw()).not.to.be.reverted;
-      });
-      });
-
-    describe("Events", function () {
-      it("Should emit an event on withdrawals", async function () {
-        const { lock, unlockTime, lockedAmount } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw())
-          .to.emit(lock, "Withdrawal")
-          .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-      });
-    });
+              
+        // checking for successful withdrawal by the owner
+        const addr1WithdrawTxn = await colabBank.connect(addr1).withdraw(3);
+        expect(addr1WithdrawTxn).to.eq(3);
+        
+        // checking for update on the total account
+        const totalColabBalance = await colabBank.totalColabBalance();
+        expect(totalColabBalance).to.eq(2);
+            
+        // checking the withdraw event
+        await expect(addr1WithdrawTxn).to.emit(colabBank, "Withdrawal").withArgs(3, anyValue);
+    });    
+        // checking the transfer
+        await expect(addr1WithdrawTxn).to.changeEtherBalances([owner, colabBank],[3, -3]);
+      
+    })
+    // 
 })
