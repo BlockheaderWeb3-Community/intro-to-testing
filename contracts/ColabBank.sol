@@ -1,22 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
 contract ColabBank {
-    uint public unlockTime;
+    // The keyword "public" makes variables
+    // accessible from other contracts
+    uint256 public unlockTime;
     mapping(address => uint256) public balances;
     uint256 public totalColabBalance;
 
-
     address payable public owner;
+    // Events allow clients to react to specific
+    // contract changes you declare
+    event Deposit(uint256 amount, uint256 when, address caller);
+    event Withdrawal(uint256 amount, uint256 when);
 
-    event Deposit(uint amount, uint when, address caller);
-    event Withdrawal(uint amount, uint when);
-
-    constructor(uint _unlockTime) payable {
+    // Constructor code is only run when the contract
+    // is created
+    constructor(uint256 _unlockTime) payable {
         require(
             block.timestamp < _unlockTime,
             "Unlock time should be in the future"
@@ -26,18 +29,21 @@ contract ColabBank {
         owner = payable(msg.sender);
     }
 
-    
-    // spot the error here
-    function deposit(uint amount) public {
+
+   // spot the error here
+  function deposit(uint256 amount) public {
         // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
         // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
 
-
         require(amount != 0, "cannot deposit 0 amount");
-        balances[msg.sender]  = amount;
+        balances[msg.sender] = amount;
         totalColabBalance += amount;
-        emit Deposit(amount,block.timestamp, msg.sender);
+
+        emit Deposit(amount, block.timestamp, msg.sender);
+
+
     }
+
     function withdraw() public {
         // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
         // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
