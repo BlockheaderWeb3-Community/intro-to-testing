@@ -70,7 +70,7 @@ describe("ColabBank Test Suite", async () => {
     // Adding the withdrawal test (Faith M. Roberts)
     describe("Withdrawal", async () => {
         it("should fail if called before the present time", async () => {
-        const { colabBank, addr1, unlockTime } = await loadFixture(deployOneYearLockFixture);
+            const { colabBank, addr1, unlockTime } = await loadFixture(deployOneYearLockFixture);
       
         expect(colabBank.withdraw()).to.be.revertedWith("You can't withdraw yet");
               
@@ -89,10 +89,10 @@ describe("ColabBank Test Suite", async () => {
             
         // checking the withdraw event
         await expect(addr1WithdrawTxn).to.emit(colabBank, "Withdrawal").withArgs(3, anyValue);
-    });    
+            
         // checking the transfer
         await expect(addr1WithdrawTxn).to.changeEtherBalances([owner, colabBank],[3, -3]);
-      
+      });
     })
     // 
 })
