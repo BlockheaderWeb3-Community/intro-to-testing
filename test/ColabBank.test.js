@@ -86,9 +86,16 @@ describe("ColabBank Test Suite", async () => {
 
     describe("Events", function () {
     it("Should emit an event on withdrawals", async function () {
-    const { colabBank, unlockTime, lockedAmount } = await loadFixture(
+    const { colabBank, unlockTime, lockedAmount, owner } = await loadFixture(
       deployOneYearLockFixture
     );
+
+    const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
+    const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
+    const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
+    const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
+    const currentColabBalanceInEth = prevColabBalanceInEth - prevOwnerBalanceInEth;
+    expect(currentColabBalanceInEth).to.eq(2);
 
     await time.increaseTo(unlockTime);
 
