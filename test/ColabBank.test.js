@@ -70,7 +70,7 @@ describe("ColabBank Test Suite", async () => {
    // Adding the withdrawal test (Faith M. Roberts)
    describe("Withdrawal", async () => {
     it("should fail if called before the present time", async () => {
-    const { colabBank, addr1, unlockTime } = await loadFixture(deployOneYearLockFixture);
+    const { colabBank, addr1, unlockTime, owner } = await loadFixture(deployOneYearLockFixture);
 
     expect(colabBank.withdraw()).to.be.revertedWith("You can't withdraw yet");
     await time.increaseTo(unlockTime);
@@ -82,11 +82,15 @@ describe("ColabBank Test Suite", async () => {
 
       const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
       const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
-      const currentOwnerBalance = currentOwnerBalance += prevOwnerBalanceInEth;
       const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
       const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
+
+      await colabBank.connect(owner).withdraw();
+
+      const currentOwnerBalanceInEth = ethers.utils.formatEther(await ethers.provider.getBalance(owner.address));
+      
       const currentColabBalanceInEth = prevColabBalanceInEth - prevOwnerBalanceInEth;
-      expect(currentOwnerBalance >= prevOwnerBalanceInEth);
+      expect(currentOwnerBalanceInEth >= prevOwnerBalanceInEth);
       expect(currentColabBalanceInEth).to.eq(0);
 
 
@@ -96,7 +100,7 @@ describe("ColabBank Test Suite", async () => {
 
     describe("Events", function () {
     it("Should emit an event on withdrawals", async function () {
-    const { colabBank, unlockTime, lockedAmount, owner } = await loadFixture(
+    const { colabBank, unlockTime, lockedAmount} = await loadFixture(
       deployOneYearLockFixture
     );
 
