@@ -92,10 +92,12 @@ describe("ColabBank Test Suite", async () => {
 
     const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
     const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
+    const currentOwnerBalance = currentOwnerBalance += prevOwnerBalanceInEth;
     const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
     const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
     const currentColabBalanceInEth = prevColabBalanceInEth - prevOwnerBalanceInEth;
-    expect(currentColabBalanceInEth).to.eq(2);
+    expect(currentOwnerBalance >= prevOwnerBalanceInEth);
+    expect(currentColabBalanceInEth).to.eq(0);
 
     await time.increaseTo(unlockTime);
 
