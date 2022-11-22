@@ -80,17 +80,18 @@ describe("ColabBank Test Suite", async () => {
       "You aren't the owner"
     );
 
-      const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
-      const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
+      const prevOwnerBalance = await colabBank.balances(owner.address);
+      // const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
       const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
       const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
 
       await colabBank.connect(owner).withdraw();
 
-      const currentOwnerBalanceInEth = ethers.utils.formatEther(await ethers.provider.getBalance(owner.address));
+      const currentOwnerBalanceInEth = await colabBank.balances(owner.address);
       
-      const currentColabBalanceInEth = prevColabBalanceInEth - prevOwnerBalanceInEth;
-      expect(currentOwnerBalanceInEth >= prevOwnerBalanceInEth);
+      // rounding up the decimals to equal 0
+      const currentColabBalanceInEth = Math.round(prevColabBalanceInEth - prevOwnerBalance);
+      expect(currentOwnerBalanceInEth >= prevOwnerBalance);
       expect(currentColabBalanceInEth).to.eq(0);
 
 
