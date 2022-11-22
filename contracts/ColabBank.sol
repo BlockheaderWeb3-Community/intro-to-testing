@@ -25,7 +25,6 @@ contract ColabBank {
         unlockTime = _unlockTime;
         owner = payable(msg.sender);
     }
-
     
 
     function deposit(uint amount) public {

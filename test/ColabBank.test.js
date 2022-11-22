@@ -80,6 +80,16 @@ describe("ColabBank Test Suite", async () => {
       "You aren't the owner"
     );
 
+      const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
+      const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
+      const currentOwnerBalance = currentOwnerBalance += prevOwnerBalanceInEth;
+      const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
+      const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
+      const currentColabBalanceInEth = prevColabBalanceInEth - prevOwnerBalanceInEth;
+      expect(currentOwnerBalance >= prevOwnerBalanceInEth);
+      expect(currentColabBalanceInEth).to.eq(0);
+
+
      expect(colabBank.withdraw()).not.to.be.reverted;
   });
 });
@@ -89,15 +99,6 @@ describe("ColabBank Test Suite", async () => {
     const { colabBank, unlockTime, lockedAmount, owner } = await loadFixture(
       deployOneYearLockFixture
     );
-
-    const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
-    const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
-    const currentOwnerBalance = currentOwnerBalance += prevOwnerBalanceInEth;
-    const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
-    const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
-    const currentColabBalanceInEth = prevColabBalanceInEth - prevOwnerBalanceInEth;
-    expect(currentOwnerBalance >= prevOwnerBalanceInEth);
-    expect(currentColabBalanceInEth).to.eq(0);
 
     await time.increaseTo(unlockTime);
 
