@@ -72,30 +72,32 @@ describe("ColabBank Test Suite", async () => {
     it("should fail if called before the present time", async () => {
     const { colabBank, addr1, unlockTime, owner } = await loadFixture(deployOneYearLockFixture);
 
-    expect(colabBank.withdraw()).to.be.revertedWith("You can't withdraw yet");
+    const prevColabBalance = await ethers.provider.getBalance(colabBank.address)
+    expect(prevColabBalance).to.eq(lockedAmount)
+
+    const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
+    expect(prevOwnerBalance).to.be.gte(parseEther('9000'))
+
+    expect(colabBank.connect(owner).withdraw()).to.be.revertedWith("You can't withdraw yet");
     await time.increaseTo(unlockTime);
 
-    // We use colabBank.connect() to send a transaction from another account
+    // // We use colabBank.connect() to send a transaction from another account
     await expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
       "You aren't the owner"
     );
 
-      const prevOwnerBalance = await colabBank.balances(owner.address);
-      // const prevOwnerBalanceInEth = ethers.utils.formatEther(prevOwnerBalance);
-      const prevColabBalance = await ethers.provider.getBalance(colabBank.address);
-      const prevColabBalanceInEth = ethers.utils.formatEther(prevColabBalance);
 
-      await colabBank.connect(owner).withdraw();
+    // withdraw all ETH in colabBank conttract
+    const ownerWithdrawalTxn = await colabBank.connect(owner).withdraw()
+    await ownerWithdrawalTxn.wait()
 
-      const currentOwnerBalanceInEth = await colabBank.balances(owner.address);
-      
-      // rounding up the decimals to equal 0
-      const currentColabBalanceInEth = Math.round(prevColabBalanceInEth - prevOwnerBalance);
-      expect(currentOwnerBalanceInEth >= prevOwnerBalance);
-      expect(currentColabBalanceInEth).to.eq(0);
+    // check owner ETH balance
+    const currentOwnerBalance = await ethers.provider.getBalance(owner.address);
+    expect(currentOwnerBalance).to.be.gt(prevOwnerBalance) 
 
+    const currentColabBalance = await ethers.provider.getBalance(colabBank.address)
 
-     expect(colabBank.withdraw()).not.to.be.reverted;
+    expect(currentColabBalance).to.eq(0)
   });
 });
 
