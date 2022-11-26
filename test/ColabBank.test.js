@@ -4,16 +4,14 @@ const {
 } = require("@nomicfoundation/hardhat-network-helpers");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
+const { parseEther } = ethers.utils;
 
 
 describe("ColabBank Test Suite", async () => {
-
-
     async function deployOneYearLockFixture() {
         const TIME = 60 * 60;
-        const ONE_GWEI = 1_000_000_000;
 
-        const lockedAmount = ONE_GWEI;
+        const lockedAmount = parseEther("1");
         const unlockTime = await time.latest() + TIME;
 
         const currentTime = await time.latest()
@@ -21,7 +19,6 @@ describe("ColabBank Test Suite", async () => {
         const [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
         const ColabBank = await ethers.getContractFactory("ColabBank");
         const colabBank = await ColabBank.deploy(unlockTime, { value: lockedAmount });
-
 
         return { unlockTime, lockedAmount, owner, addr1, addr2, addr3, addr4, colabBank, currentTime };
     }
@@ -69,14 +66,14 @@ describe("ColabBank Test Suite", async () => {
     })
    // Adding the withdrawal test (Faith M. Roberts)
    describe("Withdrawal", async () => {
-    it("should fail if called before the present time", async () => {
-    const { colabBank, addr1, unlockTime, owner } = await loadFixture(deployOneYearLockFixture);
+     it("should fail if called before the present time", async () => {
+    const { colabBank, addr1, unlockTime, owner, lockedAmount } = await loadFixture(deployOneYearLockFixture);
 
     const prevColabBalance = await ethers.provider.getBalance(colabBank.address)
     expect(prevColabBalance).to.eq(lockedAmount)
 
     const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
-    expect(prevOwnerBalance).to.be.gte(parseEther('9000'))
+    expect(prevOwnerBalance).to.be.gte(parseEther('9900'))
 
     expect(colabBank.connect(owner).withdraw()).to.be.revertedWith("You can't withdraw yet");
     await time.increaseTo(unlockTime);

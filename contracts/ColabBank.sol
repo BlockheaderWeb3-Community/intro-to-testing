@@ -33,7 +33,7 @@ contract ColabBank {
 
 
         require(amount != 0, "cannot deposit 0 amount");
-        balances[msg.sender]  = amount;
+        balances[msg.sender] += amount;
         totalColabBalance += amount;
         emit Deposit(amount,block.timestamp, msg.sender);
 

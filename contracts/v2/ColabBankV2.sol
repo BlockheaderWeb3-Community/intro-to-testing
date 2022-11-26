@@ -18,7 +18,7 @@ contract ColabBankV2 {
     function deposit() public payable {
         require(msg.value != 0, "cannot deposit 0 ETH");
         uint256 value = msg.value;
-        balances[msg.sender] = value;
+        balances[msg.sender] += value;
         emit Deposit(value, block.timestamp, msg.sender);
     }
 
