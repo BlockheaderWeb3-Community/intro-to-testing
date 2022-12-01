@@ -64,7 +64,23 @@ describe("ColabBank Test Suite", async () => {
     });
    // Adding the withdrawal test (Faith M. Roberts)
     describe("Withdrawal", async () => {
-        it("should return the correct error message if called before the unlock time", async () => {
+        it("should revert owner attempt to withdraw before the unlock time", async () => {
+            const { colabBank, addr1, unlockTime, owner, lockedAmount } = await loadFixture(deployOneYearLockFixture);
+
+            expect(colabBank.connect(owner).withdraw()).to.be.revertedWith("You can't withdraw yet");
+        });
+
+        it("should revert non owner attempt to withdraw", async () => {
+            const { colabBank, addr1, unlockTime, owner, lockedAmount } = await loadFixture(deployOneYearLockFixture);
+
+            await time.increaseTo(unlockTime);
+
+            await expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
+              "You aren't the owner"
+            );
+        });
+
+        it("should allow owner to successfully withdraw", async () => {
             const { colabBank, addr1, unlockTime, owner, lockedAmount } = await loadFixture(deployOneYearLockFixture);
 
             const prevColabBalance = await ethers.provider.getBalance(colabBank.address)
@@ -73,15 +89,8 @@ describe("ColabBank Test Suite", async () => {
             const prevOwnerBalance = await ethers.provider.getBalance(owner.address);
             expect(prevOwnerBalance).to.be.gte(parseEther('9900'))
 
-            expect(colabBank.connect(owner).withdraw()).to.be.revertedWith("You can't withdraw yet");
             await time.increaseTo(unlockTime);
-
-            // // We use colabBank.connect() to send a transaction from another account
-            await expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
-              "You aren't the owner"
-            );
-
-
+           
     // withdraw all ETH in colabBank conttract
             const ownerWithdrawalTxn = await colabBank.connect(owner).withdraw()
             await ownerWithdrawalTxn.wait()
