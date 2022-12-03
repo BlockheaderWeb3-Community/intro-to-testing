@@ -4,7 +4,7 @@ _I found out that in the deposit function there are some vulnerabilities which a
 
 - ### **Type of Deposit not specified**
 
-> I noticed that the type of deposit is not checked and validated to be sure that the person is depositing eth and not just anything, with this anybody can deposit trashy items and withdraw valuable eth, anything goes in this deposit function.
+  > I noticed that the type of deposit is not checked and validated to be sure that the person is depositing eth and not just anything, with this anybody can deposit trashy items and withdraw valuable eth, anything goes in this deposit function.
 
 - ### **Current Balance can be altered because of a bug present**
 
