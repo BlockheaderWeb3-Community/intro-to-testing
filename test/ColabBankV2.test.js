@@ -4,40 +4,33 @@ const {
 } = require("@nomicfoundation/hardhat-network-helpers");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 
 describe("ColabBank Test Suite", async () => {
 
 
     async function deployOneYearLockFixture() {
-        const TIME = 60 * 60;
-        const ONE_GWEI = 1_000_000_000;
-
-        const lockedAmount = ONE_GWEI;
-        const unlockTime = await time.latest() + TIME;
-
-        const currentTime = await time.latest()
-
         const [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
-        const ColabBank = await ethers.getContractFactory("ColabBank");
-        const colabBank = await ColabBank.deploy(unlockTime, { value: lockedAmount });
+        const ColabBankV2 = await ethers.getContractFactory("ColabBankV2");
+        const colabBankV2 = await ColabBankV2.deploy();
 
 
-        return { unlockTime, lockedAmount, owner, addr1, addr2, addr3, addr4, colabBank, currentTime };
+        return { owner, addr1, addr2, addr3, addr4, colabBankV2 };
     }
 
-    
-    describe("Deposits", async () => {
-        it("should successfully deposit", async () => {
-    
+
+    describe("Deposit", async () => {
+        it.only("should successfully deposit", async () => {
+            const { colabBankV2, addr1 } = await loadFixture(deployOneYearLockFixture);
+
         })
     })
-    
-    describe("Withdrawals", async () => {
+
+    describe("Withdrawal", async () => {
         // write PoC for the vulnerability
         it("", async () => {
-
-    
+            
         })
     })
 

@@ -70,20 +70,7 @@ describe('ColabBank Test Suite', async () => {
       const totalColabBalance = await colabBank.totalColabBalance()
       expect(totalColabBalance).to.eq(5)
 
-      await expect(addr1DepositTxn)
-        .to.emit(colabBank, 'Deposit')
-        .withArgs(5, anyValue, addr1.address)
-    })
-  })
-  // Adding the withdrawal test (Faith M. Roberts)
-  describe('Withdrawal', async () => {
-    it('should revert owner attempt to withdraw before the unlock time', async () => {
-      const { colabBank, owner } = await loadFixture(deployOneYearLockFixture)
 
-      expect(colabBank.connect(owner).withdraw()).to.be.revertedWith(
-        "You can't withdraw yet",
-      )
-    })
 
     it('should revert non owner attempt to withdraw', async () => {
       const { colabBank, addr1, unlockTime } = await loadFixture(
@@ -92,41 +79,6 @@ describe('ColabBank Test Suite', async () => {
 
       await time.increaseTo(unlockTime)
 
-      await expect(colabBank.connect(addr1).withdraw()).to.be.revertedWith(
-        "You aren't the owner",
-      )
-    })
-
-    it('should allow owner to successfully withdraw', async () => {
-      const { colabBank, unlockTime, owner, lockedAmount } = await loadFixture(
-        deployOneYearLockFixture,
-      )
-
-      const prevColabBalance = await ethers.provider.getBalance(
-        colabBank.address,
-      )
-      expect(prevColabBalance).to.eq(lockedAmount)
-
-      const prevOwnerBalance = await ethers.provider.getBalance(owner.address)
-      expect(prevOwnerBalance).to.be.gte(parseEther('9900'))
-
-      await time.increaseTo(unlockTime)
-
-      // withdraw all ETH in colabBank conttract
-      const ownerWithdrawalTxn = await colabBank.connect(owner).withdraw()
-      await ownerWithdrawalTxn.wait()
-
-      // check owner ETH balance
-      const currentOwnerBalance = await ethers.provider.getBalance(
-        owner.address,
-      )
-      expect(currentOwnerBalance).to.be.gt(prevOwnerBalance)
-
-      const currentColabBalance = await ethers.provider.getBalance(
-        colabBank.address,
-      )
-
-      expect(currentColabBalance).to.eq(0)
     })
   })
 
