@@ -36,7 +36,7 @@ contract ColabBank {
         // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
 
         require(amount != 0, "cannot deposit 0 amount");
-        balances[msg.sender] = amount;
+
         totalColabBalance += amount;
 
         emit Deposit(amount, block.timestamp, msg.sender);
